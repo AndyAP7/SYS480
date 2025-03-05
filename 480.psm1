@@ -144,7 +144,7 @@ Function Select-Network([string] $esxi)
    Write-Host "Select your Network Adapter:"
    $chosen_net=$null
   
-   $networks = $vmhost | Get-VirtualSwitch | Get-VirtualPortGroup
+   $networks = $vmhost 
    $index=1
 
 
@@ -203,62 +203,6 @@ Function FullClone([string] $vm, $snap, $vmhost, $ds, $network)
        return $newVM
    }
 }
-
-
-Function New-Network()
-{
-   $config = Get-480Config -config_path "/home/user/Documents/Github/SYS480/480.json"
-
-
-   $vsName = Read-Host "Enter the name for your new Virtual Switch"
-   $virtualSwitch = New-VirtualSwitch -VMHost $config.esxi_host -Name $vsName -Server $config.vcenter_server
-
-   Write-Host "All Virtual Switches:"
-   Get-VirtualSwitch | ForEach-Object { Write-Host $_.Name }
-
-
-   $selectedSwitch = Read-Host "Enter the name of the Virtual Switch you want to use for creating a Port Group"
-
-
-   $vsName = Get-VirtualSwitch -Name $selectedSwitch
-   if ($vsName -eq $null) {
-       Write-Host "Invalid Virtual Switch name. Please choose a valid Virtual Switch."
-       return
-   }
-
-   $pgName = Read-Host "Enter the name for your new Port Group"
-   $portGroup = New-VirtualPortGroup -VirtualSwitch $vsName -Name $pgName
-
-
-   Write-Host "Virtual Switch: $($virtualSwitch.Name) and Port Group: $($portGroup.Name) have been created"
-
-   $rmSwitch = Read-Host "Would you like to remove a Virtual Switch? (Y/N)"
-   if ($rmSwitch -match "^[yY]$"){
-       Get-VirtualSwitch | ForEach-Object { Write-Host $_.Name }
-       $virSwitchChosen = Read-Host "Enter the name of the Virtual Switch you wish to remove"
-       Remove-VirtualSwitch -VirtualSwitch $virSwitchChosen
-
-
-       $rmPortGroup = Read-Host "Do you want to remove a virtual group? (Y/N)"
-       if ($rmPortGroup -match "^[yY]$"){
-           Get-VirtualPortGroup | ForEach-Object { Write-Host $_.Name }
-           $virPGchosen = Read-Host "Enter the name of the group you want to remove"
-           $portGroupToRemove = Get-VirtualPortGroup -Name $virPGchosen
-           Remove-VirtualPortGroup -VirtualPortGroup $portGroupToRemove
-       } elseif ($rmPortGroup -match "^[nN]$|^$"){
-           Write-Host "No Virtual Port Group will be removed."
-       } else {
-           Write-Host "Invalid option for removing Virtual Port Group."
-       }
-   } elseif ($rmSwitch -match "^[nN]$|^$"){
-       Write-Host "No Virtual Switch or Port Group will be removed."
-   } else {
-       Write-Host "Invalid option for removing Virtual Switch."
-   }
-   return $virtualSwitch
-   return $portGroup
-}
-
 
 Function powerOn(){
 
@@ -323,39 +267,6 @@ Function powerOff(){
 
    return $powerOff
 }
-
-
-Function Get-IP($VM) {
-
-   $config = Get-480Config -config_path "/home/user/Documents/Github/SYS480/480.json"
-   480Connect -server $config.vcenter_server
-
-
-   $vms = Get-VM -Name $VM
-
-
-   foreach($vm in $vms){
-       $mac=Get-NetworkAdapter -VM $vm | Select-Object -ExpandProperty MacAddress
-       $ipaddr=$vm.Guest.IPAddress[0]
-       $info="Name: $($VM)`nMAC Address: $($mac)`nIP Address: $($ipaddr)"
-       Write-Host $info
-   }
-}
-
-
-Function Set-Windows-IP($VM, $eth, $IP, $mask, $gate4, $nameserver) {
-
-   $config = Get-480Config -config_path "/home/user/Documents/Github/SYS480/480.json"
-   480Connect -server $config.vcenter_server
-   
-   $vm = Get-VM -Name $VM
-   $Cred = Get-Credential -Message "Enter Username and Password for $vm"
-
-   Invoke-VMScript -VM $vm -GuestCredential $Cred -ScriptText "netsh interface ipv4 set address name='$eth' static $IP $mask $gate4 "
-
-   Invoke-VMScript -VM $vm -GuestCredential $Cred -ScriptText "netsh interface ipv4 add dns name='$eth' $nameserver index=1"
-}
-
 
 
 
