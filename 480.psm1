@@ -1,4 +1,4 @@
-#Credits: Nick had helped me clarify/debug some of these functions. (Nick Rivera)
+#Credits: Nick had helped me with some clarification as there were parts I was confused with. (Nick Rivera)
 
 
 function 480Banner()
