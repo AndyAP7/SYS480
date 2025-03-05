@@ -78,7 +78,7 @@ Function Select-VM([string] $folder)
 
        do
        {
-           $pick_index = Read-Host "Please choose an index number"
+           $pick_index = Read-Host "Please choose a VM"
 
 
            if ($pick_index -eq "") {
@@ -125,7 +125,7 @@ Function Select-DB()
 
 
    do {
-       $choice = Read-Host "Please pick your index number"
+       $choice = Read-Host "Please choose your datastore"
        if (ErrorHandling -index $choice -maxIndex $datastores.Count) {
            $chosen_db = $datastores[$choice - 1]
            Write-Host "You picked " $chosen_db.Name
@@ -160,7 +160,7 @@ Function Select-Network([string] $esxi)
 
    do
    {
-       $choice = Read-Host "Please choose an index number"
+       $choice = Read-Host "Please choose a VM"
        if (ErrorHandling -index $choice -maxIndex $networks.Count){
 
 
@@ -204,7 +204,7 @@ Function FullClone([string] $vm, $snap, $vmhost, $ds, $network)
 
 Function New-Network()
 {
-   $config = Get-480Config -config_path "/home/sbarrick/SYS-480/modules/480-utils/480.json"
+   $config = Get-480Config -config_path "/home/user/Documents/Github/SYS480/480.json"
 
 
    $vsName = Read-Host "Enter the name for your new Virtual Switch"
@@ -236,10 +236,10 @@ Function New-Network()
        Remove-VirtualSwitch -VirtualSwitch $virSwitchChosen
 
 
-       $rmPortGroup = Read-Host "Would you like to remove a Virtual Port Group? (Y/N)"
+       $rmPortGroup = Read-Host "Do you want to remove a virtual group? (Y/N)"
        if ($rmPortGroup -match "^[yY]$"){
            Get-VirtualPortGroup | ForEach-Object { Write-Host $_.Name }
-           $virPGchosen = Read-Host "Enter the name of the Virtual Port Group you wish to remove"
+           $virPGchosen = Read-Host "Enter the name of the group you want to remove"
            $portGroupToRemove = Get-VirtualPortGroup -Name $virPGchosen
            Remove-VirtualPortGroup -VirtualPortGroup $portGroupToRemove
        } elseif ($rmPortGroup -match "^[nN]$|^$"){
@@ -275,7 +275,7 @@ Function powerOn(){
 
 
    do{
-       $choice = Read-Host "Which index number [x] do you want to start? (Press 'Enter' for none of these options)"
+       $choice = Read-Host "Which VM do you want to start? (Press 'Enter' for none)"
        if (ErrorHandling -index $choice -maxIndex $vmList.Count){
 
 
@@ -307,7 +307,7 @@ Function powerOff(){
 
 
    do {  
-       $choice = Read-Host "Which index number [x] do you want to stop? (Press 'Enter' for none of these options)"
+       $choice = Read-Host "Which VM do you want to stop? (Press 'Enter' for none)"
        if (ErrorHandling -index $choice -maxIndex $vmList.Count){
 
 
@@ -342,7 +342,7 @@ Function Get-IP($VM) {
 
 Function Set-Windows-IP($VM, $eth, $IP, $mask, $gate4, $nameserver) {
 
-   $config = Get-480Config -config_path "/home/sbarrick/SYS-480/modules/480-utils/480.json"
+   $config = Get-480Config -config_path "/home/user/Documents/Github/SYS480/480.json"
    480Connect -server $config.vcenter_server
    
    $vm = Get-VM -Name $VM
